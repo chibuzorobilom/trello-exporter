@@ -1,0 +1,42 @@
+////////////////////////////////////////////////////////////////
+
+trello-exporter - the simple future-proof Trello backup tool
+
+////////////////////////////////////////////////////////////////
+
+"trello-exporter" will turn an entire Trello board into a directory of simple, plain, text-formatted files, each file corresponding to a card, with metadata, description and comments, all files organized in a nested tree directory corresponding to the lists of the board, including special directories for archived items.
+
+It is written in fish[0] and, to run it, you will need curl[0] and jq[1], beside fish itself, to be installed in your system.
+
+Even if you don't use fish as your primary shell, you can just run
+
+fish ./trello-exporter.fish <board-id> <trello-api-key> <trello-token>
+
+To get a valid trello-api-key and trello-token, visit https://trello.com/app-key while logged into your account. The board id doesn't need to be the id, it can be the "shortLink", that random string that identifies the board in the URL, right after "/b/".
+
+The script will create a subdirectory named 'trello_exported_data' wherever you run it and place all the subdirectories and files inside.
+
+It fetches and saves the following information for each list:
+
+- name
+
+And for each card:
+
+- name
+- members
+- labels
+- creation date
+- url
+- id
+- description
+- checklists (with all checkitems and "checked" states)
+- attachments (with URL and name)
+- comments (with username of author, posted date and text)
+
+Currently it doesn't download attachments, but this feature will be added in the feature.
+
+---
+
+[0]: https://fishshell.com/
+[1]: https://curl.haxx.se/download.html
+[2]: https://stedolan.github.io/jq/download/
