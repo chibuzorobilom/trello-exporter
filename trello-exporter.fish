@@ -31,6 +31,15 @@ function parsedate --description "parsedate <trello-entity-id>"
   date -d @$dec +'%Y-%m-%d %H:%M:%S'
 end
 
+function cleanname --description "cleanname <name-to-be-used-as-filename>"
+  set name $argv[1]
+  set name (echo $name | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
+  set name (echo $name | iconv -f utf8 -t ascii -t ascii//TRANSLIT)
+  set name (expr $name : '^[- ]*\(.*\)')
+  set name (expr substr $name 1 200)
+  echo $name
+end
+
 set boardname (cleanname (get "/1/boards/$boardId/name" | jq -r '._value'))
 
 set boarddir _data/$boardname
@@ -51,11 +60,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     cd _archived
   end
 
-  set listdir $name
-  set listdir (echo $listdir | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
-  set listdir (echo $listdir | iconv -f utf8 -t ascii -t ascii//TRANSLIT)
-  set listdir (expr $listdir : '^[- ]*\(.*\)')
-  set listdir (expr substr $listdir 1 200)
+  set listdir (cleanname $name)
   if [ -d $listdir ]
     set listdir "$listdir-$id"
   else
@@ -74,17 +79,13 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
 
     set name (echo $card | jq -r ".name")
     set id (echo $card | jq -r ".id")
-    
+
     set open (echo $card | jq -r ".open")
     if [ open = 'closed' ]
       cd _archived
     end
-    
-    set cardfile $name
-    set cardfile (echo $cardfile | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
-    set cardfile (echo $cardfile | iconv -f utf8 -t ascii -t ascii//TRANSLIT)
-    set cardfile (expr $cardfile : '^[- ]*\(.*\)')
-    set cardfile (expr substr $cardfile 1 200)
+
+    set cardfile (cleanname $name)
     if [ -e $cardfile.md ]
       set cardfile "$cardfile-$id.md"
     else
