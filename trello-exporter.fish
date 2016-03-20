@@ -31,10 +31,13 @@ function parsedate --description "parsedate <trello-entity-id>"
   date -d @$dec +'%Y-%m-%d %H:%M:%S'
 end
 
-rm -rf trello_exported_data
-mkdir -p trello_exported_data
-cd trello_exported_data
-mkdir -p _archived
+set boardname (cleanname (get "/1/boards/$boardId/name" | jq -r '._value'))
+
+set boarddir _data/$boardname
+rm -rf $boarddir
+mkdir -p $boarddir
+mkdir -p $boarddir/_archived
+cd $boarddir
 
 set lists (get "/1/boards/$boardId/lists" filter all fields name,open)
 for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
@@ -187,4 +190,4 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
 end
 
 cd ..
-tree -L 3 trello_exported_data
+tree -L 3 $boarddir
