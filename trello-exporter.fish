@@ -48,13 +48,16 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     cd _archived
   end
 
-  if [ -d $name ]
-    set listdir "$name-$id"
-  else
-    set listdir $name
-  end
+  set listdir $name
   set listdir (echo $listdir | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
+  set listdir (echo $listdir | iconv -f utf8 -t ascii -t ascii//TRANSLIT)
+  set listdir (expr $listdir : '^[- ]*\(.*\)')
   set listdir (expr substr $listdir 1 200)
+  if [ -d $listdir ]
+    set listdir "$listdir-$id"
+  else
+    set listdir $listdir
+  end
 
   mkdir $listdir
   cd $listdir
@@ -74,13 +77,16 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
       cd _archived
     end
     
-    if [ -d $name ]
-      set cardfile "$name-$id.md"
-    else
-      set cardfile "$name.md"
-    end
+    set cardfile $name
     set cardfile (echo $cardfile | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
+    set cardfile (echo $cardfile | iconv -f utf8 -t ascii -t ascii//TRANSLIT)
+    set cardfile (expr $cardfile : '^[- ]*\(.*\)')
     set cardfile (expr substr $cardfile 1 200)
+    if [ -e $cardfile.md ]
+      set cardfile "$cardfile-$id.md"
+    else
+      set cardfile "$cardfile.md"
+    end
 
     # actually write the file
     echo '---' > $cardfile
@@ -158,7 +164,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
       echo '---' >> $cardfile
       echo '' >> $cardfile
       echo 'COMMENTS' >> $cardfile 
-      echo '========' >> $cardfile
+      echo '--------' >> $cardfile
       echo '' >> $cardfile
       for c in (seq 0 (math (echo $comments | jq '. | length') - 1))
         set text (echo $comments | jq ".[$c].data.text")
