@@ -77,7 +77,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
 
     # actually write the file
     echo '---' > $cardfile
-    echo -e (echo $card | jq -r '"name: \(.name)"') >> $cardfile
+    echo (echo $card | jq -r '"name: \(.name)"') >> $cardfile
     echo 'created:' (parsedate $id) >> $cardfile
     echo $card | jq -r '"id: \(.id)"' >> $cardfile
     echo $card | jq -r '"url: https://trello.com/c/\(.shortLink)"' >> $cardfile
@@ -114,7 +114,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     if [ (echo $card | jq '.attachments | length') != '0' ]
       echo '---' >> $cardfile
       echo '' >> $cardfile
-      echo 'attachments' >> $cardfile
+      echo 'ATTACHMENTS' >> $cardfile
       echo '-----------' >> $cardfile
       echo '' >> $cardfile
       for a in (seq 0 (math (echo $card | jq '.attachments | length') - 1))
@@ -127,7 +127,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     if [ (echo $card | jq '.checklists | length') != '0' ]
       echo '---' >> $cardfile
       echo '' >> $cardfile
-      echo 'checklists' >> $cardfile
+      echo 'CHECKLISTS' >> $cardfile
       echo '----------' >> $cardfile
       echo '' >> $cardfile
       for cl in (seq 0 (math (echo $card | jq '.checklists | length') - 1))
@@ -144,18 +144,28 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
       end
       echo '' >> $cardfile
     end
+
     # comments
-    # echo '---' >> $cardfile
-    # echo '' >> $cardfile
-    # echo -e 'comments' >> $cardfile 
-    # echo '========' >> $cardfile
-    # for
-    #   echo '' >> $cardfile
-    #   echo () >> $cardfile
-    #   echo () >> $cardfile
-    #   echo () >> $cardfile
-    #   echo '' >> $cardfile
-    # end
+    set comments (get "/1/cards/$id/actions" filter commentCard fields data limit '1000' member 'false' memberCreator 'true' memberCreator_fields username)
+    if [ (echo $comments | jq '. | length') != '0' ]
+      echo '---' >> $cardfile
+      echo '' >> $cardfile
+      echo 'COMMENTS' >> $cardfile 
+      echo '========' >> $cardfile
+      echo '' >> $cardfile
+      for c in (seq 0 (math (echo $comments | jq '. | length') - 1))
+        set text (echo $comments | jq ".[$c].data.text")
+        set id (echo $comments | jq -r ".[$c].id")
+        set username (echo $comments | jq -r ".[$c].memberCreator.username")
+        echo $comment | jq .
+        echo $username 'at' (parsedate $id)':' >> $cardfile
+        echo '' >> $cardfile
+        set textlen (expr length $text)
+        set text (expr substr $text 2 (math $textlen-2))
+        echo -e '  '$text | perl -X -i -pe's/\n/\n  /g' >> $cardfile
+        echo '' >> $cardfile
+      end
+    end
 
     cd $listdir
   end
