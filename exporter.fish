@@ -1,3 +1,5 @@
+#!/usr/bin/env fish
+
 if [ (count $argv) -lt 3 ]
   echo "please call this script with <board-id> <trello-api-key> <trello-token> as arguments"
   echo "to generate an API key and a token, visit https://trello.com/app-key"
@@ -38,7 +40,7 @@ set lists (get "/1/boards/$boardId/lists" filter all fields name,open)
 for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
   set boarddir (pwd)
 
-  set name (echo $lists | jq -r ".[$i].name" | perl -X -i -pe's/\// /g')
+  set name (echo $lists | jq -r ".[$i].name")
   set id (echo $lists | jq -r ".[$i].id")
 
   set open (echo $lists | jq -r ".[$i].open")
@@ -51,6 +53,9 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
   else
     set listdir $name
   end
+  set listdir (echo $listdir | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
+  set listdir (expr substr $listdir 1 200)
+
   mkdir $listdir
   cd $listdir
   set listdir (pwd)
@@ -61,7 +66,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
   for i in (seq 0 (math (echo $cards | jq '. | length') - 1))
     set card (echo $cards | jq -r ".[$i]")
 
-    set name (echo $card | jq -r ".name" | perl -X -i -pe's/\// /g')
+    set name (echo $card | jq -r ".name")
     set id (echo $card | jq -r ".id")
     
     set open (echo $card | jq -r ".open")
@@ -74,6 +79,8 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     else
       set cardfile "$name.md"
     end
+    set cardfile (echo $cardfile | perl -C -X -i -pe's/[^\w0-9.\s_]/-/ig')
+    set cardfile (expr substr $cardfile 1 200)
 
     # actually write the file
     echo '---' > $cardfile
@@ -158,7 +165,7 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
         set id (echo $comments | jq -r ".[$c].id")
         set username (echo $comments | jq -r ".[$c].memberCreator.username")
         echo $comment | jq .
-        echo $username 'at' (parsedate $id)':' >> $cardfile
+        echo '-' $username 'at' (parsedate $id)':' >> $cardfile
         echo '' >> $cardfile
         set textlen (expr length $text)
         set text (expr substr $text 2 (math $textlen-2))
