@@ -35,6 +35,8 @@ And for each card:
 
 Currently it doesn't download attachments, but this feature will be added in the feature.
 
+See an example of how each card file look after the export: https://github.com/websitesfortrello/trello-exporter/blob/master/example.md
+
 ---
 
 [0]: https://fishshell.com/
