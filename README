@@ -6,11 +6,21 @@ trello-exporter - the simple future-proof Trello backup tool
 
 "trello-exporter" will turn an entire Trello board into a directory of simple, plain, text-formatted files, each file corresponding to a card, with metadata, description and comments, all files organized in a nested tree directory corresponding to the lists of the board, including special directories for archived items.
 
-It is written in fish[0] and, to run it, you will need curl[0] and jq[1], beside fish itself, to be installed in your system.
+It is written in fish[0] and, to run it, you will need curl[0] and jq[1], besides fish itself, to be installed in your system.
+
+INSTALL
+-------
+
+As soon as you have the three dependencies above (install them globally, they are useful for many other things) and a Linux system (I don't know if this will run on MAC or BSD, it seems we use a "date" tool that is different in its GNU version than other versions, patches accepted to remove this dependency), just download the file: https://github.com/websitesfortrello/trello-exporter/blob/master/trello-exporter.fish
+
+RUN
+---
 
 Even if you don't use fish as your primary shell, you can just run
 
 fish ./trello-exporter.fish <board-id> <trello-api-key> <trello-token>
+
+You can run this from anywhere. Or you can put it in your PATH. Do what you want.
 
 To get a valid trello-api-key and trello-token, visit https://trello.com/app-key while logged into your account. The board id doesn't need to be the id, it can be the "shortLink", that random string that identifies the board in the URL, right after "/b/".
 
