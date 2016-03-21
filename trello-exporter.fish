@@ -86,10 +86,10 @@ for i in (seq 0 (math (echo $lists | jq '. | length') - 1))
     end
 
     set cardfile (cleanname $name)
-    if [ -e $cardfile.md ]
-      set cardfile "$cardfile-$id.md"
+    if [ -e $cardfile.txt ]
+      set cardfile "$cardfile-$id.txt"
     else
-      set cardfile "$cardfile.md"
+      set cardfile "$cardfile.txt"
     end
 
     # actually write the file
